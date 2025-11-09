@@ -1,6 +1,5 @@
 name: Android Build (manual)
 
-# اجرای دستی از تب Actions
 on:
   workflow_dispatch:
 
@@ -9,30 +8,27 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      # 1️⃣ دریافت سورس از ریپازیتوری
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      # 2️⃣ نصب جاوا (JDK 17 برای Gradle)
       - name: Set up JDK 17
         uses: actions/setup-java@v4
         with:
           distribution: 'temurin'
           java-version: '17'
 
-      # 3️⃣ اطمینان از اینکه gradlew خط پایان Unix دارد (نه ویندوزی CRLF)
-      - name: Fix line endings for gradlew
-        run: sed -i 's/\r$//' gradlew
+      # اصلاح انتهای خط‌ها و مجوز اجرا
+      - name: Prepare gradlew
+        run: |
+          sed -i 's/\r$//' gradlew
+          chmod +x gradlew
+          head -5 gradlew  # فقط برای لاگ، می‌تونی حذفش کنی
 
-      # 4️⃣ دادن مجوز اجرا به gradlew
-      - name: Grant execute permission for gradlew
-        run: chmod +x gradlew
-
-      # 5️⃣ اجرای build و ساخت فایل APK
+      # اجرای gradlew با bash صریح
       - name: Build Debug APK
-        run: ./gradlew assembleDebug
+        shell: bash
+        run: bash ./gradlew assembleDebug
 
-      # 6️⃣ آپلود فایل APK خروجی در بخش Artifacts
       - name: Upload APK artifact
         uses: actions/upload-artifact@v4
         with:
